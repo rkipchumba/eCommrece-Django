@@ -65,6 +65,7 @@ def checkout_home(request):
                 old_order_qs.update(active=False)
             order_obj = Order.objects.create(billing_profile=billing_profile, cart=cart_obj)
     
+    
     context = {
         "object": order_obj,
         "billing_profile": billing_profile,
