@@ -16,6 +16,23 @@ ORDER_STATUS_CHOICES = (
     ('refunded', 'Refunded'),
 )
 
+class OrderManager(models.Manager):
+    def new_or_get(self, billing_profile, cart_obj):
+        created = False
+        qs = self.get_queryset().filter(
+                billing_profile=billing_profile, 
+                cart=cart_obj, 
+                active=True)
+        if qs.count() == 1:
+            obj = qs.first()
+        else:
+            obj = self.model.objects.create(
+                    billing_profile=billing_profile, 
+                    cart=cart_obj)
+            created = True
+        return obj, created
+
+
 class Order(models.Model):
     billing_profile = models.ForeignKey(BillingProfile, null=True, blank=True, on_delete=models.SET_NULL)
     order_id        = models.CharField(max_length=120, blank=True)
@@ -30,6 +47,8 @@ class Order(models.Model):
 
     def __str__(self):
         return self.order_id
+
+    objects = OrderManager()
 
     def update_total(self):
         cart_total = self.cart.total
