@@ -41,14 +41,10 @@ def checkout_home(request):
     login_form    = LoginForm()
     guest_form    = GuestForm()
     address_form  = AddressForm() 
-    billing_address_form = AddressForm()
 
     billing_profile, billing_profile_created = BillingProfile.objects.new_or_get(request)
-
-
     if billing_profile is not None:
         order_obj, order_obj_created = Order.objects.new_or_get(billing_profile, cart_obj)
-    
     
     context = {
         "object": order_obj,
@@ -56,7 +52,6 @@ def checkout_home(request):
         "login_form": login_form,
         "guest_form": guest_form,
         "address_form": address_form, 
-        "billing_address_form": billing_address_form,
     }
 
     return render(request, "carts/checkout.html", context)

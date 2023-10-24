@@ -23,6 +23,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 
 from accounts.views import login_page, register_page, guest_register_view
+from addresses.views import checkout_address_create_view
 from .views import home_page, about_page, contact_page
 
 urlpatterns = [
@@ -31,10 +32,9 @@ urlpatterns = [
     path("contact/", contact_page, name='contact'),
     path("login/", login_page, name='login'),
     path("register/guest", guest_register_view, name='guest_register'),
-
+    path("checkout/address/create/", checkout_address_create_view, name='checkout_address_create'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('cart/', include(('carts.urls', 'carts'), namespace='cart')),
-
     path("register/", register_page, name='register'),
     path("bootstrap/", TemplateView.as_view(template_name='bootstrap/example.html')), 
     path('products/', include(('products.urls', 'products'), namespace='products')),

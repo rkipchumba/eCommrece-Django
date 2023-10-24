@@ -34,18 +34,6 @@ def guest_register_view(request):
             return redirect(redirect_path)
         else:
             return redirect("/register/")
-
-        # if user is not None:
-        #     login(request, user) 
-        #     if is_safe_url(redirect_path, [request.get_host()]):  # Use custom is_safe_url
-        #         return redirect(redirect_path)
-        #     else:
-        #         return redirect("/register/")
-
-        #     return redirect('/')
-        # else:
-        #     print('Error')
-
     return redirect("/register/")
 
 def login_page(request):
