@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from accounts.forms import LoginForm, GuestForm
@@ -6,32 +7,48 @@ from accounts.models import GuestEmail
 from addresses.forms import AddressForm
 from addresses.models import Address
 
-
+import logging
 from billing.models import BillingProfile
 from orders.models import Order
 from products.models import Product
 from .models import Cart
 
+from django.http import HttpResponse
+
 def cart_home(request):
     cart_obj, new_obj = Cart.objects.new_or_get(request)
     return render(request, "carts/home.html", {"cart": cart_obj})
 
+
 def cart_update(request):
     product_id = request.POST.get('product_id')
-    if request.is_ajax():
-        print("Ajax request")
+  
     if product_id is not None:
         try:
             product_obj = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
-            print("Show message to the user, product is gone?")
+            print("Show a message to the user, product is gone?")
             return redirect("cart:home")
         cart_obj, new_obj = Cart.objects.new_or_get(request)
         if product_obj in cart_obj.products.all():
             cart_obj.products.remove(product_obj)
+            added = False
         else:
             cart_obj.products.add(product_obj)
+            added = True
+
         request.session['cart_items'] = cart_obj.products.count()
+
+
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            json_data = {
+                "added": added,
+                "removed": not added,
+                "cartItemCount": cart_obj.products.count()
+            }
+
+            return JsonResponse(json_data)
+
     return redirect("cart:home")
 
 

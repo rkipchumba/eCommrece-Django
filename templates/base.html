@@ -1,54 +1,67 @@
 {% load static %}
-
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Base Template</title>
-    {% include 'base/css.html' %}
-    {% block base_head %}{% endblock %}
-  </head>
-
-    {% include 'base/navbar.html' with brand_name='eCommerce' %}
-    <div class="container">
-
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <!-- Required meta tags -->
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <title>Base Template</title>
+        {% include 'base/css.html' %}
+        {% block base_head %}{% endblock %}
+    </head>
+    <body>
+      {% include 'base/navbar.html' with brand_name='eCommerce' %}
+      <div class='container'>
       {% block content %}{% endblock %}
     </div>
 
-    {% include 'base/css.html' %}
 
-    <script>
-      $(document).ready(function(){
-        var productForm = $(".form-product-ajax")
 
-        productForm.submit(function(event){
-          event.preventDefault();
-          console.log("Form is not sending")
-          var thisForm = $(this)
-          var actionEndpoint = thisForm.attr("action");
-          var httpMethod = thisForm.attr("method");
-          var formData = thisForm.serialize();
-          
-          $.ajax({
-            url: actionEndpoint,
-            method: httpMethod,
-            data: formData,
-            success: function(data){
-              console.log("success")
-              console.log(data)
-            },
-            error: function(errorData){
-              console.log("error")
-              console.log(errorData)
-            }
-        })
-      })
+        {% include 'base/js.html' %}
 
-      
-    })
-    </script>
+        <script>
+          $(document).ready(function() {
+            var productForm = $(".form-product-ajax") // #form-product-ajax
+        
+            productForm.submit(function(event) {
+              event.preventDefault();
+              console.log("Form is not sending");
+              var thisForm = $(this);
+              var actionEndpoint = thisForm.attr("action");
+              var httpMethod = thisForm.attr("method");
+              var formData = thisForm.serialize();
+              console.log(formData)
+              console.log(JSON.stringify(formData))
+        
+              $.ajax({
+                url: actionEndpoint,
+                method: httpMethod,
+                data: formData,
+             
+                beforeSend: function(xhr, settings) {
+                  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // Set the header
+                },
+                success: function(response) {
+                  var submitSpan = thisForm.find(".submit-span");
+                  if (response.added) {
+                    submitSpan.html("In cart <button type='submit' class='btn btn-link'>Remove?</button>");
+                  } else {
+                    submitSpan.html("<button type='submit'  class='btn btn-success'>Add to cart</button>");
+                  }
+                  var navbarCount = $(".navbar-cart-count");
+                  navbarCount.text(response.cartItemCount);
+                console.log("success")
+                console.log(response);
 
-  </body>
-</html>
+                },
+                error: function(errorData) {
+                  console.log("error");
+                  console.log(errorData);
+                }
+              });
+            });
+          });
+        </script>
+        
+    </body>
+  </html>
