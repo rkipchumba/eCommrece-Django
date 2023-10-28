@@ -25,13 +25,10 @@
         
             productForm.submit(function(event) {
               event.preventDefault();
-              console.log("Form is not sending");
               var thisForm = $(this);
               var actionEndpoint = thisForm.attr("action");
               var httpMethod = thisForm.attr("method");
               var formData = thisForm.serialize();
-              console.log(formData)
-              console.log(JSON.stringify(formData))
         
               $.ajax({
                 url: actionEndpoint,
@@ -50,8 +47,11 @@
                   }
                   var navbarCount = $(".navbar-cart-count");
                   navbarCount.text(response.cartItemCount);
-                console.log("success")
-                console.log(response);
+                  var currentPath = window.location.href
+
+                  if (currentPath.indexOf("cart") != -1) {
+                    refreshCart()
+                  }
 
                 },
                 error: function(errorData) {
@@ -60,8 +60,32 @@
                 }
               });
             });
+
+            function refreshCart(){
+              console.log("in current cart")
+              var cartTable = $(".cart-table")
+              var cartBody = cartTable.find(".cart-body")
+              cartBody.html("<h1>Changed</h1>")
+
+              var refreshCartUrl = '/api/cart/'
+              var refreshCartMethod = "GET";
+              var data = {};
+              $.ajax({
+                url: refreshCartUrl,
+                method: refreshCartMethod,
+                data: data,
+                sucess: function(data){
+                  console.log("success")
+                },
+                error: function(errorData){
+                  console.log("error")
+                  console.log(errorData)
+                }
+              })
+            }
+          
+
           });
         </script>
-        
     </body>
   </html>
