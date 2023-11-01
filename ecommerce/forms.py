@@ -19,19 +19,23 @@ class ContactForm(forms.Form):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if not 'gmail.com' in email:
+        if not email.endswith('@gmail.com'):
             raise forms.ValidationError('Email has to be gmail.com')
         return email
 
+    # def clean_content(self):
+    #     content = self.cleaned_data.get('content')
+    #     if 'forbidden_word' in content:
+    #         raise forms.ValidationError("Content contains a forbidden word")
+    #     return content
 
 
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        password2 = cleaned_data.get('password2')
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     password = cleaned_data.get('password')
+    #     password2 = cleaned_data.get('password2')
         
-        if password2 != password:
-            raise forms.ValidationError('Passwords must match.')
+    #     if password2 != password:
+    #         raise forms.ValidationError('Passwords must match.')
         
-        return cleaned_data
+    #     return cleaned_data

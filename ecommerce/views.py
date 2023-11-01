@@ -1,7 +1,7 @@
 import email
 from django.contrib.auth import authenticate, login, get_user_model
 from urllib import request
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from .forms import ContactForm
@@ -30,15 +30,21 @@ def contact_page(request):
         'title': 'Contact Page',
         'content': 'Welcome to the Contact Page',
         'form': contact_form,
-        
     }
-    if contact_form.is_valid():
-        print(contact_form.cleaned_data)
-    # if request.method == 'POST':
-    #     # print(request.POST)
-    #     print(request.POST.get('fullname'))
-    #     print(request.POST.get('email'))
-    #     print(request.POST.get('content'))
+
+    if request.method == 'POST':
+        if contact_form.is_valid():
+            # Form is valid, you can proceed with processing the data.
+            print(contact_form.cleaned_data)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                message = "Thank you for your submission"
+                response_data = {'message': message}  # Create a dictionary with a "message" key
+                return JsonResponse(response_data, safe=False)  # Return a JsonResponse with the dictionary
+        else:
+            # Form has errors, return validation errors as JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                errors = contact_form.errors.as_json()
+                return JsonResponse(errors, status=400)
 
 
     return render(request, 'contact/view.html', context)
