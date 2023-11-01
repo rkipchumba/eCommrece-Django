@@ -21,11 +21,44 @@
 
         <script>
           $(document).ready(function() {
+            // Auto Search
+            var searchForm = $(".search-form")
+              var searchInput = searchForm.find("[name='q']") // input name='q'
+              var typingTimer;
+              var typingInterval = 500 // .5 seconds
+              var searchBtn = searchForm.find("[type='submit']")
+              searchInput.keyup(function(event){
+                // key released
+                clearTimeout(typingTimer)
+
+                typingTimer = setTimeout(perfomSearch, typingInterval)
+              })
+
+              searchInput.keydown(function(event){
+                // key pressed
+                clearTimeout(typingTimer)
+              })
+
+              function displaySearching(){
+                searchBtn.addClass("disabled")
+                searchBtn.html("<i class='fa fa-spin fa-spinner'></i> Searching...")
+              }
+
+              function perfomSearch(){
+                displaySearching()
+                var query = searchInput.val()
+                setTimeout(function(){
+                  window.location.href='/search/?q=' + query
+                }, 1000)
+                
+              }
+            // cart + add Products
             var productForm = $(".form-product-ajax") // #form-product-ajax
         
             productForm.submit(function(event) {
               event.preventDefault();
               var thisForm = $(this);
+              // var actionEndpoint = thisForm.attr("action"); // API Endpoint
               var actionEndpoint = thisForm.attr("action");
               var httpMethod = thisForm.attr("method");
               var formData = thisForm.serialize();
@@ -55,36 +88,64 @@
 
                 },
                 error: function(errorData) {
-                  console.log("error");
-                  console.log(errorData);
+                  $.alert({
+                    title: "Oops!",
+                    content: "An error occurred",
+                    theme: "modern",
+                  })
                 }
               });
             });
 
-            function refreshCart(){
-              console.log("in current cart")
-              var cartTable = $(".cart-table")
-              var cartBody = cartTable.find(".cart-body")
-              cartBody.html("<h1>Changed</h1>")
+            function refreshCart() {
+              console.log("in current cart");
+              var cartTable = $(".cart-table");
+              var cartBody = cartTable.find(".cart-body");
+              //cartBody.html("<h1>Changed</h1>")
+              var productRows = cartBody.find(".cart-product");
 
-              var refreshCartUrl = '/api/cart/'
+              var refreshCartUrl = '/api/cart/';
               var refreshCartMethod = "GET";
               var data = {};
+
+              var currentUrl = window.location.href; // Get the current URL
+
               $.ajax({
                 url: refreshCartUrl,
                 method: refreshCartMethod,
                 data: data,
-                sucess: function(data){
-                  console.log("success")
-                },
-                error: function(errorData){
-                  console.log("error")
-                  console.log(errorData)
-                }
-              })
-            }
-          
+                success: function(data) {
+                  
 
+                  var hiddenCartItemRemoveForm = $(".cart-item-remove-form")
+                  if (data.products.length > 0) {
+                    productRows.html(" ");
+                    i = data.products.length
+                    $.each(data.products, function(index, value) {
+                      console.log(value);
+                      var newCartItemRemove = hiddenCartItemRemoveForm.clone()
+                      newCartItemRemove.css('display', 'block')
+                      newCartItemRemove.find(".cart-item-product_id").val(value.id)
+                      cartBody.prepend("<tr><th scope=\"row\">" + i + "</th><td><a href='" + value
+                        .url + "'>" + value.name + "</a>" + newCartItemRemove.html() + "</td><td>" + value.price + "</td></tr>");
+                      i --;
+                    });
+
+                    cartBody.find(".cart-subtotal").text(data.subtotal);
+                    cartBody.find(".cart-total").text(data.total);
+                  } else {
+                    window.location.href = currentUrl; // Redirect to the current URL
+                  }
+                },
+                error: function(errorData) {
+                  $.alert({
+                    title: "Oops!",
+                    content: "An error occurred",
+                    theme: "modern",
+                  })
+                }
+              });
+            }
           });
         </script>
     </body>

@@ -7,13 +7,23 @@ from accounts.models import GuestEmail
 from addresses.forms import AddressForm
 from addresses.models import Address
 
-import logging
 from billing.models import BillingProfile
 from orders.models import Order
 from products.models import Product
 from .models import Cart
 
-from django.http import HttpResponse
+
+def cart_detail_api_view(request):
+    cart_obj, new_obj = Cart.objects.new_or_get(request)
+    products = [{
+        "id": x.id,
+        "url": x.get_absolute_url(),
+        "title": x.title, 
+        "price": x.price} for x in cart_obj.products.all()]
+
+    cart_data  = {"products": products, "subtotal": cart_obj.subtotal, "total": cart_obj.total}
+    return JsonResponse(cart_data)
+
 
 def cart_home(request):
     cart_obj, new_obj = Cart.objects.new_or_get(request)
@@ -47,7 +57,8 @@ def cart_update(request):
                 "cartItemCount": cart_obj.products.count()
             }
 
-            return JsonResponse(json_data)
+            return JsonResponse(json_data, status=200)
+            # return JsonResponse({"message": "Error 400"}, status_code=400)
 
     return redirect("cart:home")
 
