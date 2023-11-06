@@ -5,6 +5,9 @@ from django.db.models.signals import post_save
 from accounts.models import GuestEmail
 User = settings.AUTH_USER_MODEL
 
+import stripe
+stripe.api_key = "sk_test_51N7Ev4GCBBy71y1GvMTAGNwEC9c689VlZdTCVkWm4jTliTx89h5qzJtDdUC1gEZ3jPUhL7eLWZ7H3H1GJshuYhPL00QWQzC99y"
+
 # class BillingProfileManager(models.Manager):
 #     def new_or_get(self, request):
 #         user = request.user
