@@ -1,33 +1,16 @@
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 
 from accounts.models import GuestEmail
 User = settings.AUTH_USER_MODEL
 
+# abc@teamcfe.com -->> 1000000 billing profiles
+# user abc@teamcfe.com -- 1 billing profile
+
 import stripe
-stripe.api_key = "sk_test_51N7Ev4GCBBy71y1GvMTAGNwEC9c689VlZdTCVkWm4jTliTx89h5qzJtDdUC1gEZ3jPUhL7eLWZ7H3H1GJshuYhPL00QWQzC99y"
+stripe.api_key = "sk_test_cu1lQmcg1OLffhLvYrSCp5XE"
 
-# class BillingProfileManager(models.Manager):
-#     def new_or_get(self, request):
-#         user = request.user
-#         guest_email_id = request.session.get('guest_email_id')
-#         created = False
-#         obj = None
-#         if user.is_authenticated:
-#             'logged in user checkout; remember payment stuff'
-#             obj, created = self.model.objects.get_or_create(
-#                             user=user, email=user.email)
-#         elif guest_email_id is not None:
-#             'guest user checkout; auto reloads payment stuff'
-#             guest_email_obj = GuestEmail.objects.get(id=guest_email_id)
-#             obj, created = self.model.objects.get_or_create(
-#                                             email=guest_email_obj.email)
-#         else:
-#             pass
-#         return obj, created
-
-#         objects = BillingProfileManager()
 
 
 class BillingProfileManager(models.Manager):
@@ -36,43 +19,44 @@ class BillingProfileManager(models.Manager):
         guest_email_id = request.session.get('guest_email_id')
         created = False
         obj = None
-        guest_email_id = request.session.get('guest_email_id')
-
-        if user.is_authenticated:
-            'logged user checkout; remember payment stuff'
-            obj, created = BillingProfile.objects.get_or_create(
-                user=user,
-                defaults={'email': user.email}
-            )
+        if user.is_authenticated():
+            'logged in user checkout; remember payment stuff'
+            obj, created = self.model.objects.get_or_create(
+                            user=user, email=user.email)
         elif guest_email_id is not None:
-            'guest user checkout; reloads payment stuff'
+            'guest user checkout; auto reloads payment stuff'
             guest_email_obj = GuestEmail.objects.get(id=guest_email_id)
-            obj, created    = BillingProfile.objects.get_or_create(
-                defaults={'email': guest_email_obj.email}
-            )
-        else: 
+            obj, created = self.model.objects.get_or_create(
+                                            email=guest_email_obj.email)
+        else:
             pass
         return obj, created
 
-        objects = BillingProfileManager()
-
 class BillingProfile(models.Model):
-    user        = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     email       = models.EmailField()
     active      = models.BooleanField(default=True)
     update      = models.DateTimeField(auto_now=True)
     timestamp   = models.DateTimeField(auto_now_add=True)
+    customer_id = models.CharField(max_length=120, null=True, blank=True)
+    # customer_id in Stripe or Braintree
 
     objects = BillingProfileManager()
 
     def __str__(self):
         return self.email
 
-# def billing_profile_created_receiver(sender, instance, created, *args, **kwargs):
-#     if created:
-#         print("ACTUAL API REQUEST Send to stripe/braintree")
-#         instance.customer_id = newID
-#         instance.save()
+def billing_profile_created_receiver(sender, instance, *args, **kwargs):
+    if not instance.customer_id and instance.email:
+        print("ACTUAL API REQUEST Send to stripe/braintree")
+        customer = stripe.Customer.create(
+                email = instance.email
+            )
+        print(customer)
+        instance.customer_id = customer.id
+
+pre_save.connect(billing_profile_created_receiver, sender=BillingProfile)
+
 
 def user_created_receiver(sender, instance, created, *args, **kwargs):
     if created and instance.email:
