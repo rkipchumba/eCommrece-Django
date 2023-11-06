@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 
 from .forms import LoginForm, RegisterForm, GuestForm
 from .models import GuestEmail
+from .signals import user_logged_in
 
 # Custom is_safe_url function
 def is_safe_url(url, allowed_hosts):
@@ -52,6 +53,7 @@ class LoginView(FormView):
         user     = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
+            user_logged_in.send(user.__class__, instance=user, request=request)
             try:
                 del request.session['guest_email_id']
             except:
