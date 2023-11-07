@@ -9,7 +9,7 @@ User = settings.AUTH_USER_MODEL
 # user abc@teamcfe.com -- 1 billing profile
 
 import stripe
-stripe.api_key = "sk_test_cu1lQmcg1OLffhLvYrSCp5XE"
+stripe.api_key = "pk_test_51N7Ev4GCBBy71y1Gz612DmzcqFfy0lsrzhhFQCwjsMmWJ9rJ5l4UQVHWM5sUtuszwQJdG9dlmuKABULDxzXvgHWf00W14nXBjf"
 
 
 
@@ -19,7 +19,7 @@ class BillingProfileManager(models.Manager):
         guest_email_id = request.session.get('guest_email_id')
         created = False
         obj = None
-        if user.is_authenticated():
+        if user.is_authenticated:
             'logged in user checkout; remember payment stuff'
             obj, created = self.model.objects.get_or_create(
                             user=user, email=user.email)

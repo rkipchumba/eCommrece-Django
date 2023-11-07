@@ -12,11 +12,18 @@ slim is missing ajax -->
 <!--  Stripe JS -->
 <script src="https://js.stripe.com/v3/" ></script>
 
-<!-- jquery-confirm JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.js"></script>
 
+<!--Jquery confirm-js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.13/jsrender.js"></script>
+
+<!-- js Render -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.js"></script>
+{% include 'base/js_templates.html' %}
 <!-- Django secure JS -->
 <script src='{% static "js/csrf.ajax.js" %}'></script>
 
 <!-- eCommerce Custom JS -->
 <script src='{% static "js/ecommerce.js" %}'></script>
+
+<!-- eCommerce Custom main JS -->
+<script src='{% static "js/ecommerce.main.js" %}'></script>
