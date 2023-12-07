@@ -110,7 +110,7 @@ $(document).ready(function(){
             success: function(data){
                 var succesMsg = data.message || "Success! Your card was added."
                 card.clear()
-                if (nextUrl){
+                if (nextUrl){ 
                     succesMsg = succesMsg + "<br/><br/><i class='fa fa-spin fa-spinner'></i> Redirecting..."
                 }
                 if ($.alert){

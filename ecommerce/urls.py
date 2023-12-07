@@ -41,7 +41,9 @@ urlpatterns = [
     path('api/cart/', cart_detail_api_view, name='api-cart'),
     path('cart/', include(('carts.urls', 'carts'), namespace='cart')),
     path("billing/payment-method/", payment_method_view, name='billing-payment-method'),
-    path("billing/payment-method/create", payment_method_createview, name='billing-payment-method-endpoint'),
+    # path('billing/payment-method/create/', create_payment_method, name='create_payment_method'),
+    path('billing/payment-method/create/', payment_method_createview, name='billing-payment-method-endpoint'),
+
 
     path("register/", RegisterView.as_view(), name='register'),
     path("bootstrap/", TemplateView.as_view(template_name='bootstrap/example.html')), 
