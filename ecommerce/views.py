@@ -32,7 +32,7 @@ def contact_page(request):
         'form': contact_form,
     }
 
-    if request.method == 'POST':
+    if request.method == 'POST': 
         if contact_form.is_valid():
             # Form is valid, you can proceed with processing the data.
             print(contact_form.cleaned_data)
